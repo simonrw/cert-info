@@ -72,7 +72,7 @@ func renderPretty(cert *x509.Certificate, writer io.Writer) {
 	for _, uri := range cert.URIs {
 		fmt.Printf("uri: %s\n", uri)
 	}
-	fmt.Printf("valid from %s to %s\n", cert.NotBefore, cert.NotAfter)
+	fmt.Printf("valid from %s to %s\n", cert.NotAfter, cert.NotBefore)
 	fmt.Printf("issuer: %s\n", cert.Issuer)
 	fmt.Printf("is ca: %v\n", cert.IsCA)
 }
