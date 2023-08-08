@@ -4,7 +4,7 @@ buildGoModule {
   pname = "cert-info";
   version = "0.1.0";
 
-  src = ./.;
+  src = pkgs.nix-gitignore.gitignoreSource [] ./.;
 
   vendorHash = null;
 }
