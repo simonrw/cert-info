@@ -13,8 +13,11 @@ import (
 )
 
 func main() {
-	var hostname = flag.String("hostname", "", "Hostname to connect to")
-	var jsonOutput = flag.Bool("json", false, "Output JSON")
+	var (
+		hostname     = flag.String("hostname", "", "Hostname to connect to")
+		jsonOutput   = flag.Bool("json", false, "Output JSON")
+		noServerName = flag.Bool("noservername", false, "Do not set server-name in TLS configuration")
+	)
 	flag.Parse()
 
 	if *hostname == "" {
@@ -25,10 +28,15 @@ func main() {
 	if err != nil {
 		log.Fatalf("cannot connect to %s: %v", *hostname, err)
 	}
-	client := tls.Client(conn, &tls.Config{
-		ServerName: *hostname,
+
+	config := &tls.Config{
 		InsecureSkipVerify: true,
-	})
+	}
+	if !*noServerName {
+		config.ServerName = *hostname
+	}
+	client := tls.Client(conn, config)
+
 	if err := client.Handshake(); err != nil {
 		log.Fatalf("cannot perform handshake with %s: %v", *hostname, err)
 	}
