@@ -26,6 +26,7 @@ func main() {
 		log.Fatalf("cannot connect to %s: %v", *hostname, err)
 	}
 	client := tls.Client(conn, &tls.Config{
+		ServerName: *hostname,
 		InsecureSkipVerify: true,
 	})
 	if err := client.Handshake(); err != nil {
