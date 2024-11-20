@@ -10,6 +10,7 @@ import (
 	"log"
 	"net"
 	"os"
+	"strings"
 )
 
 func main() {
@@ -18,6 +19,7 @@ func main() {
 		jsonOutput   = flag.Bool("json", false, "Output JSON")
 		noServerName = flag.Bool("noservername", false, "Do not set server-name in TLS configuration")
 		port         = flag.Int("port", 443, "Port to connect to")
+		noValidate   = flag.Bool("no-validate", false, "Don't validate given hostname")
 	)
 	flag.Parse()
 
@@ -57,6 +59,40 @@ func main() {
 	} else {
 		renderPretty(cert, os.Stdout)
 	}
+
+	if *noValidate {
+		return
+	}
+
+	// perform validation of the hostname against the certificates
+	for _, name := range cert.DNSNames {
+		if certificateCoversHostname(name, *hostname) {
+			return
+		}
+	}
+
+	fmt.Fprintf(os.Stderr, "Validation failed: %s is not matched by SANS\n", *hostname)
+	os.Exit(1)
+}
+
+func certificateCoversHostname(san, givenName string) bool {
+	sanParts := strings.Split(san, ".")
+	givenNameParts := strings.Split(givenName, ".")
+	if len(sanParts) != len(givenNameParts) {
+		return false
+	}
+
+	// start from the end
+	n := len(sanParts)
+	for i := n - 1; i >= 0; i-- {
+		if sanParts[i] != "*" {
+			if sanParts[i] != givenNameParts[i] {
+				return false
+			}
+		}
+	}
+
+	return true
 }
 
 func renderJson(cert *x509.Certificate, writer io.Writer) {
