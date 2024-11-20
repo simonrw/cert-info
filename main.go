@@ -17,6 +17,7 @@ func main() {
 		hostname     = flag.String("hostname", "", "Hostname to connect to")
 		jsonOutput   = flag.Bool("json", false, "Output JSON")
 		noServerName = flag.Bool("noservername", false, "Do not set server-name in TLS configuration")
+		port         = flag.Int("port", 443, "Port to connect to")
 	)
 	flag.Parse()
 
@@ -24,7 +25,7 @@ func main() {
 		log.Fatal("no hostname specified")
 	}
 
-	conn, err := net.Dial("tcp", fmt.Sprintf("%s:443", *hostname))
+	conn, err := net.Dial("tcp", fmt.Sprintf("%s:%d", *hostname, *port))
 	if err != nil {
 		log.Fatalf("cannot connect to %s: %v", *hostname, err)
 	}
